@@ -3,6 +3,7 @@ import pandas as pd
 from utils.skill_extractor import extract_skills
 from utils.career_mapper import map_career_path
 from utils.readiness_score import calculate_score
+from utils.course_recommender import recommend_courses
 
 # Load data
 industry_skills = pd.read_csv("data/industry_skills.csv")
@@ -31,6 +32,22 @@ if st.button("🔍 Analisis"):
 
         st.subheader("📊 Skor Kesiapan Industri Masa Depan:")
         st.metric("Readiness Score", f"{score}/100")
+
+            
+        if isinstance(mapping, list) and mapping:
+            best_industry = mapping[0]['industry']
+            skill_gap, course_recos = recommend_courses(
+                skill_list, best_industry, industry_skills, course_catalog
+            )
+
+            st.subheader("📚 Rekomendasi Kursus untuk Mengisi Skill Gap:")
+            if course_recos:
+                for course in course_recos:
+                    st.markdown(f"- **{course['course_title']}** ({course['provider']}) – Skill: *{course['skill']}*")
+            else:
+                st.write("✅ Tidak ada gap skill besar – Anda sudah siap!")
+        else:
+            st.info("Tidak ada industri dominan terdeteksi.")
 
     else:
         st.warning("Silakan masukkan skill terlebih dahulu.")
